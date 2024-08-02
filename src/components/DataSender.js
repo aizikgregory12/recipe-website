@@ -11,6 +11,7 @@ const DataSender = forwardRef(({ onGenerate }, ref) => {
     setUrl(userUrl);
     setTitle(userTitle);
     if (userUrl && userTitle) {
+      console.log("URL and Title received:", userUrl, userTitle);
       sendData(userUrl, userTitle);
     }
   };
@@ -21,8 +22,10 @@ const DataSender = forwardRef(({ onGenerate }, ref) => {
   }));
 
   const generateQRCode = (url, title) => {
-    axios.post('https://flask-for-recipe.onrender.com', { url, title }, { responseType: 'blob' })
+    console.log("Sending request to generate QR code:", url, title);
+    axios.post('https://flask-for-recipe.onrender.com/api/generate_qr', { url, title }, { responseType: 'blob' })
       .then(response => {
+        console.log("Response received:", response);
         const reader = new FileReader();
         reader.readAsDataURL(response.data);
         reader.onloadend = function () {
