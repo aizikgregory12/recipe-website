@@ -21,7 +21,7 @@ const DataSender = forwardRef(({ onGenerate }, ref) => {
   }));
 
   const generateQRCode = (url, title) => {
-    axios.post('http://127.0.0.1:5000/api/generate_qr', { url, title }, { responseType: 'blob' })
+    axios.post('https://flask-for-recipe.onrender.com', { url, title }, { responseType: 'blob' })
       .then(response => {
         const reader = new FileReader();
         reader.readAsDataURL(response.data);
