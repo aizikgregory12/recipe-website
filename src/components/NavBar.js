@@ -1,9 +1,10 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import '../styles/NavBar.css';
 import DataSender from './DataSender';
 
-const NavBar = ({ onGenerate, searchQuery, onSearchChange }) => {
+const NavBar = ({ onGenerate, onAddCustomRecipe }) => {
   const dataSenderRef = useRef();
+  const [showCustomRecipeForm, setShowCustomRecipeForm] = useState(false);
 
   const handleWebsiteRecipeClick = () => {
     if (dataSenderRef.current) {
@@ -12,27 +13,25 @@ const NavBar = ({ onGenerate, searchQuery, onSearchChange }) => {
   };
 
   const handleCustomRecipeClick = () => {
-    const ingredients = prompt("Enter the ingredients (separated by commas):");
-    const steps = prompt("Enter the steps to prepare the food:");
+    setShowCustomRecipeForm(true);
+  };
 
-    if (ingredients && steps) {
-      const recipeContent = `
-        <html>
-          <head>
-            <title>Custom Recipe</title>
-          </head>
-          <body>
-            <h1>Custom Recipe</h1>
-            <h2>Ingredients</h2>
-            <p>${ingredients}</p>
-            <h2>Steps</h2>
-            <p>${steps}</p>
-          </body>
-        </html>
-      `;
-      const blob = new Blob([recipeContent], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      dataSenderRef.current.generateQRCode(url, "Custom Recipe");
+  const handleCustomRecipeSubmit = (e) => {
+    e.preventDefault();
+    const name = e.target.name.value;
+    const ingredients = e.target.ingredients.value;
+    const steps = e.target.steps.value;
+    const image = e.target.image.value;
+
+    if (name && ingredients && steps && image) {
+      const newRecipe = {
+        title: name,
+        ingredients,
+        steps,
+        image,
+      };
+      onAddCustomRecipe(newRecipe);
+      setShowCustomRecipeForm(false);
     }
   };
 
@@ -61,6 +60,31 @@ const NavBar = ({ onGenerate, searchQuery, onSearchChange }) => {
         </div>
       </div>
       <DataSender ref={dataSenderRef} onGenerate={onGenerate} />
+
+      {showCustomRecipeForm && (
+        <div className="custom-recipe-form">
+          <form onSubmit={handleCustomRecipeSubmit}>
+            <div>
+              <label>Recipe Name:</label>
+              <input type="text" name="name" required />
+            </div>
+            <div>
+              <label>Ingredients (comma-separated):</label>
+              <textarea name="ingredients" required />
+            </div>
+            <div>
+              <label>Steps:</label>
+              <textarea name="steps" required />
+            </div>
+            <div>
+              <label>Image URL:</label>
+              <input type="text" name="image" required />
+            </div>
+            <button type="submit">Add Recipe</button>
+            <button type="button" onClick={() => setShowCustomRecipeForm(false)}>Cancel</button>
+          </form>
+        </div>
+      )}
     </nav>
   );
 };
